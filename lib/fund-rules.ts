@@ -77,6 +77,15 @@ function formatIsoDate(year: number, month: number, day: number): string {
   return `${y}-${m}-${d}`;
 }
 
+export function todayIsoDate(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
 export function closeDateFor(dueDate: string): string {
   const { year, month, day } = parseIsoDate(dueDate);
   const date = new Date(Date.UTC(year, month - 1, day + 28));
