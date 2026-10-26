@@ -6,7 +6,7 @@ Demo MVP
 - [x] 3. **Money and date rules** - fee (rounded up), £10 minimum, close date, expiry, balance from the ledger, all in pence; the core algorithm in one place
 - [x] 4. **Create a fund** - `/fund/new`: name, mum's email, due date, optional goal, note; slug; "fund created" outbox email
 - [x] 5. **Public fund page** - `/fund/<slug>`: total, goal bar, guest messages (hidden amounts respected), close date, share link, Contribute
-- [ ] 6. **Guest checkout** - `/fund/<slug>/give` and `/thanks`: amount (£10 min), message, show-amount choice, server-side fee, pending contribution, Stripe Checkout in test mode
+- [x] 6. **Guest checkout** - `/fund/<slug>/give` and `/thanks`: amount (£10 min), message, show-amount choice, server-side fee, pending contribution, Stripe Checkout in test mode
 - [ ] 7. **Payment webhook** - `checkout.session.completed` marks the contribution paid once, adds the credit entry, writes the receipt and "you've received a gift" to the outbox
 - [ ] 8. **Mum page** - `/fund/<slug>/me`, no sign-in: balance, expiry, every message and amount, top-up history
 - [ ] 9. **Mum top-ups** - top-up with fee through the same checkout and webhook, private to the mum

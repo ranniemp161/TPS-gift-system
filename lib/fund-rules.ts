@@ -1,6 +1,8 @@
 import type { creditLedger } from "@/db/schema";
 
 export const MIN_AMOUNT_PENCE = 1000;
+// Stripe rejects single payments above this, so gift plus fee must stay under it.
+export const MAX_CHARGE_PENCE = 99_999_999;
 
 export function meetsMinimum(amountPence: number): boolean {
   return Number.isSafeInteger(amountPence) && amountPence >= MIN_AMOUNT_PENCE;
