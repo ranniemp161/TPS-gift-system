@@ -3,6 +3,7 @@
 **From build-plan:** feature 2
 **Build attempt:** 1
 **Branch:** feature/database-foundation
+**Status:** verified
 
 ## Goal
 
@@ -32,13 +33,13 @@ Config: `workflow.stepReview` is `feature` and `checkpointCommits` is `disabled`
 
 ## Build steps
 
-- [ ] 1. **Packages and config.** Install `drizzle-orm` and `@neondatabase/serverless` as dependencies and `drizzle-kit` as a dev dependency (TPS-CRM versions: `^0.45.3`, `^1.2.0`, `^0.31.11`). Add `drizzle.config.ts` at the root: dialect `postgresql`, schema `./db/schema.ts`, out `./drizzle`, `DATABASE_URL` from the environment, loading `.env.local` with `process.loadEnvFile` when it exists (drizzle-kit runs outside Next.js), `strict` and `verbose` on. Add scripts `db:generate` (`drizzle-kit generate`), `db:migrate` (`drizzle-kit migrate`), `db:studio` (`drizzle-kit studio`). Add `.env.example` with `DATABASE_URL=` and a `!.env.example` line after `.env*` in `.gitignore`.
+- [x] 1. **Packages and config.** Install `drizzle-orm` and `@neondatabase/serverless` as dependencies and `drizzle-kit` as a dev dependency (TPS-CRM versions: `^0.45.3`, `^1.2.0`, `^0.31.11`). Add `drizzle.config.ts` at the root: dialect `postgresql`, schema `./db/schema.ts`, out `./drizzle`, `DATABASE_URL` from the environment, loading `.env.local` with `process.loadEnvFile` when it exists (drizzle-kit runs outside Next.js), `strict` and `verbose` on. Add scripts `db:generate` (`drizzle-kit generate`), `db:migrate` (`drizzle-kit migrate`), `db:studio` (`drizzle-kit studio`). Add `.env.example` with `DATABASE_URL=` and a `!.env.example` line after `.env*` in `.gitignore`.
   - Done when: `npm install` succeeds, `git status` shows `.env.example` as untracked (not ignored) and `.env.local` stays ignored, and `npm run verify` passes.
-- [ ] 2. **Schema.** Write `db/schema.ts` exactly as in Data / contracts.
+- [x] 2. **Schema.** Write `db/schema.ts` exactly as in Data / contracts.
   - Done when: `npm run typecheck` passes and `npm run db:generate` writes one migration under `drizzle/` whose SQL creates the four enums, five tables, foreign keys, unique constraints and check constraints listed below. Read the SQL to confirm.
-- [ ] 3. **Apply to Neon.** Prerequisite from the user: a Neon Postgres database (neon.tech, or Neon through the personal Vercel account's Storage tab) and its connection string in `.env.local` as `DATABASE_URL`. Run `npm run db:migrate`.
+- [x] 3. **Apply to Neon.** Prerequisite from the user: a Neon Postgres database (neon.tech, or Neon through the personal Vercel account's Storage tab) and its connection string in `.env.local` as `DATABASE_URL`. Run `npm run db:migrate`.
   - Done when: the migration applies without error and `npm run db:studio` shows the five empty tables with the listed columns. If no database is available yet, stop at this step and report it; steps 1-2 stay valid.
-- [ ] 4. **Document commands.** Add the `db:*` commands and the `DATABASE_URL` / `.env.local` note to the Commands section of `AGENTS.md`.
+- [x] 4. **Document commands.** Add the `db:*` commands and the `DATABASE_URL` / `.env.local` note to the Commands section of `AGENTS.md`.
   - Done when: the Commands section lists generate, migrate and studio, and `npm run verify` passes.
 
 ## Files / areas

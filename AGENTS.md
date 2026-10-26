@@ -333,3 +333,7 @@ checks do not make the Blueprint unusable.
 - Typecheck: `npm run typecheck` (runs `next typegen` first so route types exist on a clean checkout)
 - Test: none configured. Testing is opt-in and not set up yet.
 - Verify: `npm run verify` (typecheck, then build; the same command GitHub Actions runs in `.github/workflows/verify.yml`)
+- DB generate migration: `npm run db:generate` (after editing `db/schema.ts`; never hand-edit files in `drizzle/`)
+- DB migrate: `npm run db:migrate` (applies `drizzle/` migrations to `DATABASE_URL`)
+- DB studio: `npm run db:studio` (browse the database)
+- The `db:*` commands read `DATABASE_URL` from `.env.local` (copy `.env.example`; never commit `.env.local`). Verify and the build do not need it.
