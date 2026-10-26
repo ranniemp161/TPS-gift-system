@@ -24,7 +24,7 @@ These describe the code as it is: a fresh create-next-app scaffold. Sections mar
 
 > TODO (confirm): planned conventions from the spec, to be checked when payments are built.
 
-- Calculate the card fee only on the server: `fee = round((amount + 0.20) / 0.985 - amount, 2)`. Never trust an amount or total from the browser.
+- Calculate the card fee with `cardFeePence` from `@/lib/fund-rules`: `fee = (amount + 0.20) / 0.985 - amount` rounded up to the penny using integer arithmetic. Never trust an amount or total from the browser.
 - Enforce the £10 minimum on the server.
 - A contribution becomes paid, and credit is added, only from the Stripe `checkout.session.completed` webhook. The thank-you page never adds credit.
 - The balance is always derived from the credit ledger (credits - debits), never stored as a separate number.
