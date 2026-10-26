@@ -27,9 +27,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 The TPS Gift Fund for The Postpartum Suite (TPS). A mum (or a friend using the
 mum's email) creates a fund page, guests give any amount with a message and pay
 the card fee on top, and everything becomes prepaid TPS credit to spend on TPS
-services. It is gift credit, never cash or a fundraiser. Version 1 goes live on
-Friday 6 November 2026. Planning lives in `blueprint/project-plan.md` and
-`blueprint/build-plan.md`.
+services. It is gift credit, never cash or a fundraiser.
+
+This repo is a learning demo of that system, later to be integrated into
+TPS-CRM: no sign-in, Stripe test mode only, emails shown in an on-screen outbox,
+deployed to a personal Vercel account. Planning lives in
+`blueprint/project-plan.md` and `blueprint/build-plan.md`.
 
 ## Proportional engineering
 

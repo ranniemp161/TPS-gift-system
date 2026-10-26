@@ -32,7 +32,9 @@ These describe the code as it is: a fresh create-next-app scaffold. Sections mar
 
 ## Data
 
-> TODO (confirm): Supabase is the spec's suggestion and not installed yet. Record the real client, query, and migration conventions here when the database foundation lands.
+> TODO (confirm): Neon Postgres + Drizzle (matching TPS-CRM) is planned but not installed yet. Record the real client, query, and migration conventions here when the database foundation lands.
+
+- Store money as integer pence; format as pounds only for display.
 
 ## Linting
 
