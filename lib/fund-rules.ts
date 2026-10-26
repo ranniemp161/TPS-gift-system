@@ -20,6 +20,37 @@ export function cardFeePence(amountPence: number): number {
   return totalPence - amountPence;
 }
 
+export function parsePoundsToPence(input: string): number | null {
+  if (typeof input !== "string") {
+    return null;
+  }
+  let trimmed = input.trim();
+  if (trimmed.startsWith("£")) {
+    trimmed = trimmed.slice(1).trim();
+  }
+  if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) {
+    return null;
+  }
+  const [poundsStr, penceStr = ""] = trimmed.split(".");
+  const pencePadded = penceStr.padEnd(2, "0");
+  const totalPenceStr = `${poundsStr}${pencePadded}`.replace(/^0+(?=\d)/, "");
+  const totalPence = Number(totalPenceStr);
+  if (!Number.isSafeInteger(totalPence)) {
+    return null;
+  }
+  return totalPence;
+}
+
+export function formatPence(pence: number): string {
+  if (!Number.isSafeInteger(pence)) {
+    throw new RangeError("Pence must be a safe integer");
+  }
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+  }).format(pence / 100);
+}
+
 function parseIsoDate(dateStr: string): { year: number; month: number; day: number } {
   if (typeof dateStr !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     throw new RangeError(`Invalid date format (expected YYYY-MM-DD): "${dateStr}"`);

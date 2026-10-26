@@ -1,6 +1,6 @@
 # TPS Gift Fund Demo - Project Overview
 
-<!-- blueprint:source-hash 0909b5dcf925ce5dcf04b606dd5b01fb5f8789e17c1bb288a5356ee59fa8d95a -->
+<!-- blueprint:source-hash 28d2e82932bea9955d7a49af68728420857e1a7220565f7fb7e3f30a69480f6b -->
 
 > A working demo of the TPS Gift Fund: guests give to a mum's fund, every gift becomes prepaid TPS credit, built to learn the mechanics before integrating them into TPS-CRM.
 
