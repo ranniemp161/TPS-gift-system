@@ -2,7 +2,7 @@
 
 Demo MVP
 - [x] 1. **App scaffold** - Next.js 16 App Router, React 19, TypeScript, Tailwind v4 (create-next-app)
-- [ ] 2. **Database foundation** - Neon Postgres + Drizzle, schema for funds, contributions, credit_ledger, credit_requests, outbox
+- [x] 2. **Database foundation** - Neon Postgres + Drizzle, schema for funds, contributions, credit_ledger, credit_requests, outbox
 - [ ] 3. **Money and date rules** - fee (rounded up), £10 minimum, close date, expiry, balance from the ledger, all in pence; the core algorithm in one place
 - [ ] 4. **Create a fund** - `/fund/new`: name, mum's email, due date, optional goal, note; slug; "fund created" outbox email
 - [ ] 5. **Public fund page** - `/fund/<slug>`: total, goal bar, guest messages (hidden amounts respected), close date, share link, Contribute
