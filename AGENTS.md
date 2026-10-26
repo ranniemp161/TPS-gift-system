@@ -327,5 +327,6 @@ checks do not make the Blueprint unusable.
 - Build: `npm run build`
 - Production server: `npm run start`
 - Lint: `npm run lint`
+- Typecheck: `npm run typecheck` (runs `next typegen` first so route types exist on a clean checkout)
 - Test: none configured. Testing is opt-in and not set up yet.
-- Verify: none configured. No combined verification command exists.
+- Verify: `npm run verify` (typecheck, then build; the same command GitHub Actions runs in `.github/workflows/verify.yml`)
