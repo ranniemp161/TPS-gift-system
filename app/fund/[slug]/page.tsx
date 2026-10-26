@@ -9,6 +9,7 @@ import {
   fundStatus,
   todayIsoDate,
 } from "@/lib/fund-rules";
+import { requestOrigin } from "@/lib/request-origin";
 import { getPublicFund } from "./data";
 import { ShareLink } from "./share-link";
 
@@ -32,14 +33,6 @@ function formatDateEnGb(date: Date): string {
   }).format(date);
 }
 
-function buildShareUrl(headersList: Headers, slug: string): string {
-  const host = headersList.get("host") || "localhost:3000";
-  const protoHeader = headersList.get("x-forwarded-proto");
-  const isLocal = host.startsWith("localhost") || host.startsWith("127.0.0.1");
-  const protocol = protoHeader || (isLocal ? "http" : "https");
-  return `${protocol}://${host}/fund/${slug}`;
-}
-
 async function FundContent({
   params,
 }: {
@@ -55,7 +48,7 @@ async function FundContent({
   }
 
   const headerList = await headers();
-  const shareUrl = buildShareUrl(headerList, fund.slug);
+  const shareUrl = `${requestOrigin(headerList)}/fund/${fund.slug}`;
   const status = fundStatus(fund.closeDate, today);
   const expiryDate = expiryDateFor(fund.closeDate);
 

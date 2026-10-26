@@ -9,6 +9,7 @@ import {
   formatPence,
   parsePoundsToPence,
 } from "@/lib/fund-rules";
+import { isValidEmail } from "@/lib/validation";
 
 export type FieldName =
   | "mumFirstName"
@@ -55,28 +56,6 @@ function randomSuffix(length = 4): string {
     result += chars[randomInt(0, 36)];
   }
   return result;
-}
-
-function isValidEmail(email: string): boolean {
-  if (email.length === 0 || email.length > 254) {
-    return false;
-  }
-  if (/\s/.test(email)) {
-    return false;
-  }
-  const atParts = email.split("@");
-  if (atParts.length !== 2) {
-    return false;
-  }
-  const [local, domain] = atParts;
-  if (!local || !domain) {
-    return false;
-  }
-  const domainParts = domain.split(".");
-  if (domainParts.length < 2) {
-    return false;
-  }
-  return domainParts.every((part) => part.length > 0);
 }
 
 function isSlugUniqueViolation(error: unknown): boolean {
