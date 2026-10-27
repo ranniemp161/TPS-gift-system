@@ -52,6 +52,28 @@ function buildGiftReceivedBody(params: {
     .join("\n");
 }
 
+function buildTopupReceiptBody(params: {
+  mumFirstName: string;
+  slug: string;
+  closeDate: string;
+  amountPence: number;
+  feePence: number;
+}): string {
+  const { mumFirstName, slug, closeDate, amountPence, feePence } = params;
+  return [
+    `Hi ${mumFirstName},`,
+    "",
+    `Top-up amount: ${formatPence(amountPence)}`,
+    `Card processing fee: ${formatPence(feePence)}`,
+    `Total paid: ${formatPence(amountPence + feePence)}`,
+    "",
+    "Your top-up becomes TPS gift credit for TPS services (not cash).",
+    "",
+    `Credit expiry date: ${expiryDateFor(closeDate)}`,
+    `Manage your fund: /fund/${slug}/me`,
+  ].join("\n");
+}
+
 export async function POST(request: Request): Promise<Response> {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
@@ -155,6 +177,13 @@ export async function POST(request: Request): Promise<Response> {
       amountPence: row.amountPence,
       message: row.message,
     });
+    const topupReceiptBody = buildTopupReceiptBody({
+      mumFirstName: row.mumFirstName,
+      slug: row.slug,
+      closeDate: row.closeDate,
+      amountPence: row.amountPence,
+      feePence: row.feePence,
+    });
 
     // neon-http has no interactive transactions, so update the contribution and
     // insert the ledger credit and outbox emails in one statement gated on
@@ -176,6 +205,12 @@ export async function POST(request: Request): Promise<Response> {
         SELECT ${row.email}, ${"Your TPS gift credit receipt"}, ${guestReceiptBody}
         FROM paid
         WHERE type = 'guest'
+      ),
+      topup_receipt_insert AS (
+        INSERT INTO outbox ("to", subject, body)
+        SELECT ${row.mumEmail}, ${"Your TPS top-up receipt"}, ${topupReceiptBody}
+        FROM paid
+        WHERE type = 'topup'
       )
       INSERT INTO outbox ("to", subject, body)
       SELECT ${row.mumEmail}, ${"You've received a gift"}, ${giftReceivedBody}

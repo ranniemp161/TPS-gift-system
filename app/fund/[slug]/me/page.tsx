@@ -11,7 +11,9 @@ import {
   todayIsoDate,
 } from "@/lib/fund-rules";
 import { requestOrigin } from "@/lib/request-origin";
+import { topUpFund } from "./actions";
 import { getMumFund } from "./data";
+import { TopUpForm } from "./topup-form";
 
 export const metadata = {
   title: "My gift credit",
@@ -35,10 +37,12 @@ function formatDateEnGb(date: Date): string {
 
 async function MumFundContent({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   await connection();
   const today = todayIsoDate();
   const fund = await getMumFund(slug);
@@ -52,6 +56,7 @@ async function MumFundContent({
   const status = fundStatus(fund.closeDate, today);
   const expiryDate = expiryDateFor(fund.closeDate);
   const balancePence = creditBalancePence(fund.ledger, fund.closeDate, today);
+  const showTopUpSuccess = query.topup === "success";
 
   return (
     <div className="space-y-8">
@@ -69,6 +74,16 @@ async function MumFundContent({
           support services.
         </p>
       </header>
+
+      {showTopUpSuccess ? (
+        <div
+          role="status"
+          className="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+        >
+          Thanks, your top-up will be added to your balance once your payment is
+          confirmed.
+        </div>
+      ) : null}
 
       <section
         aria-labelledby="balance-heading"
@@ -120,6 +135,31 @@ async function MumFundContent({
             View public fund page
           </Link>
         </div>
+      </section>
+
+      <section aria-labelledby="topup-heading" className="space-y-4">
+        <h2
+          id="topup-heading"
+          className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+        >
+          Top up my credit
+        </h2>
+
+        {status === "open" ? (
+          <>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Add your own money as TPS gift credit with the same expiry date
+              ({formatIsoDateEnGb(expiryDate)}). Top-ups are private and never
+              shown on the public page. Minimum £10, with the card processing
+              fee added on top.
+            </p>
+            <TopUpForm action={topUpFund.bind(null, fund.slug)} />
+          </>
+        ) : (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            Top-ups closed on {formatIsoDateEnGb(fund.closeDate)}.
+          </p>
+        )}
       </section>
 
       <section aria-labelledby="gifts-heading" className="space-y-4">
@@ -207,7 +247,10 @@ async function MumFundContent({
   );
 }
 
-export default function MumFundPage({ params }: PageProps<"/fund/[slug]/me">) {
+export default function MumFundPage({
+  params,
+  searchParams,
+}: PageProps<"/fund/[slug]/me">) {
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-16 dark:bg-black sm:px-6">
       <main className="w-full max-w-xl rounded-xl border border-zinc-200 bg-white p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-950 sm:p-10">
@@ -218,7 +261,7 @@ export default function MumFundPage({ params }: PageProps<"/fund/[slug]/me">) {
             </p>
           }
         >
-          <MumFundContent params={params} />
+          <MumFundContent params={params} searchParams={searchParams} />
         </Suspense>
       </main>
     </div>
