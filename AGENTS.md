@@ -337,6 +337,7 @@ checks do not make the Blueprint unusable.
 - DB migrate: `npm run db:migrate` (applies `drizzle/` migrations to `DATABASE_URL`)
 - DB studio: `npm run db:studio` (browse the database)
 - The `db:*` commands read `DATABASE_URL` from `.env.local` (copy `.env.example`; never commit `.env.local`). Verify and the build do not need it.
+- Stripe webhook (local): `stripe listen --forward-to localhost:3000/api/stripe/webhook` (prints the `whsec_` secret for `STRIPE_WEBHOOK_SECRET` in `.env.local`)
 
 <!-- BEGIN:nextjs-agent-feedback -->
 
