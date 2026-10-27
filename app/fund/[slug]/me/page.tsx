@@ -11,7 +11,8 @@ import {
   todayIsoDate,
 } from "@/lib/fund-rules";
 import { requestOrigin } from "@/lib/request-origin";
-import { topUpFund } from "./actions";
+import { requestCredit, topUpFund } from "./actions";
+import { CreditRequestForm } from "./credit-request-form";
 import { getMumFund } from "./data";
 import { TopUpForm } from "./topup-form";
 
@@ -57,6 +58,7 @@ async function MumFundContent({
   const expiryDate = expiryDateFor(fund.closeDate);
   const balancePence = creditBalancePence(fund.ledger, fund.closeDate, today);
   const showTopUpSuccess = query.topup === "success";
+  const showRequestSuccess = query.request === "success";
 
   return (
     <div className="space-y-8">
@@ -82,6 +84,16 @@ async function MumFundContent({
         >
           Thanks, your top-up will be added to your balance once your payment is
           confirmed.
+        </div>
+      ) : null}
+
+      {showRequestSuccess ? (
+        <div
+          role="status"
+          className="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+        >
+          Thanks, your credit request has been sent to TPS. They will be in
+          touch to confirm.
         </div>
       ) : null}
 
@@ -135,6 +147,85 @@ async function MumFundContent({
             View public fund page
           </Link>
         </div>
+      </section>
+
+      <section aria-labelledby="use-credit-heading" className="space-y-4">
+        <h2
+          id="use-credit-heading"
+          className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+        >
+          Use my credit
+        </h2>
+
+        {status === "expired" ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            This credit expired on {formatIsoDateEnGb(expiryDate)} and can no
+            longer be used.
+          </p>
+        ) : fund.availableCreditPence <= 0 ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            You have no available credit to use right now.
+            {fund.openRequestsPence > 0
+              ? ` ${formatPence(fund.openRequestsPence)} is already set aside for requests waiting for TPS.`
+              : ""}
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Available to use: {formatPence(fund.availableCreditPence)}
+              {fund.openRequestsPence > 0
+                ? ` (${formatPence(fund.openRequestsPence)} is set aside for requests waiting for TPS)`
+                : ""}
+              . Choose a treatment or programme and TPS will confirm your
+              booking.
+            </p>
+            <CreditRequestForm
+              action={requestCredit.bind(null, fund.slug)}
+              availableCreditPence={fund.availableCreditPence}
+            />
+          </>
+        )}
+      </section>
+
+      <section aria-labelledby="requests-heading" className="space-y-4">
+        <h2
+          id="requests-heading"
+          className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+        >
+          Credit requests
+        </h2>
+
+        {fund.creditRequests.length === 0 ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            No credit requests yet
+          </p>
+        ) : (
+          <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            {fund.creditRequests.map((request) => (
+              <li
+                key={request.id}
+                className="space-y-1 py-4 text-sm first:pt-0 last:pb-0"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {request.service}
+                  </span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {formatPence(request.amountRequestedPence)}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <time dateTime={request.createdAt.toISOString()}>
+                    {formatDateEnGb(request.createdAt)}
+                  </time>
+                  <span className="rounded-full border border-zinc-300 bg-zinc-100 px-2 py-0.5 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                    {request.status === "new" ? "Pending TPS review" : "Applied"}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section aria-labelledby="topup-heading" className="space-y-4">

@@ -3,16 +3,20 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { funds } from "@/db/schema";
+import { creditRequests, funds, outbox } from "@/db/schema";
 import { startContributionCheckout } from "@/lib/checkout";
 import {
   cardFeePence,
+  expiryDateFor,
+  formatPence,
   fundStatus,
   MAX_CHARGE_PENCE,
   meetsMinimum,
   parsePoundsToPence,
   todayIsoDate,
 } from "@/lib/fund-rules";
+import { calculateCreditRequest, getServiceById } from "@/lib/services";
+import { getMumFund } from "./data";
 
 export type TopUpFieldName = "amount";
 
@@ -127,4 +131,167 @@ export async function topUpFund(
   }
 
   redirect(checkoutUrl);
+}
+
+export type CreditRequestFieldName = "service" | "amount";
+
+export type CreditRequestValues = Record<CreditRequestFieldName, string>;
+
+export type CreditRequestState =
+  | { status: "idle" }
+  | {
+      status: "invalid";
+      errors: Partial<Record<CreditRequestFieldName, string>>;
+      values: CreditRequestValues;
+    }
+  | {
+      status: "error";
+      message: string;
+      values: CreditRequestValues;
+    };
+
+const TPS_TEAM_EMAIL = "team@postpartumsuite.co.uk";
+
+function readCreditRequestValues(formData: FormData): CreditRequestValues {
+  const service = formData.get("service");
+  const amount = formData.get("amount");
+  return {
+    service: typeof service === "string" ? service : "",
+    amount: typeof amount === "string" ? amount : "",
+  };
+}
+
+export async function requestCredit(
+  slug: string,
+  _prevState: CreditRequestState,
+  formData: FormData,
+): Promise<CreditRequestState> {
+  const values = readCreditRequestValues(formData);
+
+  let fund: Awaited<ReturnType<typeof getMumFund>>;
+  try {
+    fund = await getMumFund(slug);
+  } catch (error) {
+    console.error("Failed to load fund for credit request:", error);
+    return {
+      status: "error",
+      message: "We couldn't submit your request. Please try again.",
+      values,
+    };
+  }
+
+  if (!fund) {
+    return {
+      status: "error",
+      message: "This fund could not be found.",
+      values,
+    };
+  }
+  const today = todayIsoDate();
+  if (fundStatus(fund.closeDate, today) === "expired") {
+    return {
+      status: "error",
+      message: "This credit has expired and can no longer be used.",
+      values,
+    };
+  }
+  if (fund.availableCreditPence <= 0) {
+    return {
+      status: "error",
+      message: "There is no available credit to use right now.",
+      values,
+    };
+  }
+
+  const service = getServiceById(values.service);
+  if (!service) {
+    return {
+      status: "invalid",
+      errors: { service: "Please choose a service." },
+      values,
+    };
+  }
+
+  let amountPence: number;
+  if (service.kind === "treatment") {
+    amountPence = calculateCreditRequest(
+      service,
+      fund.availableCreditPence,
+    ).creditPence;
+  } else {
+    const amountStr = values.amount.trim();
+    if (amountStr.length === 0) {
+      return {
+        status: "invalid",
+        errors: { amount: "Please enter how much credit to apply." },
+        values,
+      };
+    }
+    const parsed = parsePoundsToPence(amountStr);
+    if (parsed === null) {
+      return {
+        status: "invalid",
+        errors: {
+          amount: "Please enter an amount in pounds, like 50 or 25.50.",
+        },
+        values,
+      };
+    }
+    if (parsed <= 0) {
+      return {
+        status: "invalid",
+        errors: { amount: "The amount must be more than £0." },
+        values,
+      };
+    }
+    if (parsed > fund.availableCreditPence) {
+      return {
+        status: "invalid",
+        errors: {
+          amount: `You can apply up to ${formatPence(fund.availableCreditPence)}.`,
+        },
+        values,
+      };
+    }
+    amountPence = parsed;
+  }
+
+  const remainingPence = fund.availableCreditPence - amountPence;
+  const emailBody = [
+    `${fund.mumFirstName} would like to use TPS gift credit.`,
+    "",
+    `Mum: ${fund.mumFirstName} (${fund.mumEmail})`,
+    `Fund page: /fund/${fund.slug}/me`,
+    `Service: ${service.name}`,
+    `Credit requested: ${formatPence(amountPence)}`,
+    `Credit remaining after this request: ${formatPence(remainingPence)}`,
+    `Credit expires: ${expiryDateFor(fund.closeDate)}`,
+    "",
+    "Review this request in the admin screen.",
+  ].join("\n");
+
+  try {
+    const db = getDb();
+    await db.batch([
+      db.insert(creditRequests).values({
+        fundId: fund.id,
+        service: service.name,
+        amountRequestedPence: amountPence,
+      }),
+      db.insert(outbox).values({
+        to: TPS_TEAM_EMAIL,
+        subject: `Credit request: ${fund.mumFirstName} - ${service.name}`,
+        body: emailBody,
+      }),
+    ]);
+  } catch (error) {
+    console.error("Failed to save credit request:", error);
+    return {
+      status: "error",
+      message: "We couldn't submit your request. Please try again.",
+      values,
+    };
+  }
+
+  redirect(`/fund/${fund.slug}/me?request=success`);
 }
