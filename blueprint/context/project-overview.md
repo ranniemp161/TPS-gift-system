@@ -1,6 +1,6 @@
 # TPS Gift Fund Demo - Project Overview
 
-<!-- blueprint:source-hash 28d2e82932bea9955d7a49af68728420857e1a7220565f7fb7e3f30a69480f6b -->
+<!-- blueprint:source-hash b2e86566379fa0564c7f6e91f2b2a6871a9cd521ab36a107da327b28b50c2436 -->
 
 > A working demo of the TPS Gift Fund: guests give to a mum's fund, every gift becomes prepaid TPS credit, built to learn the mechanics before integrating them into TPS-CRM.
 
@@ -43,15 +43,15 @@ All roles are simulated without sign-in.
 
 ## Features
 
-In build-plan order. The headline is the gift-to-credit loop (6 and 7).
+In build-plan order; features 1-7 are done. The headline is the gift-to-credit loop (6 and 7).
 
 1. **App scaffold** (done) - Next.js 16 App Router, React 19, TypeScript, Tailwind v4.
-2. **Database foundation** - Neon Postgres + Drizzle with the five tables below.
-3. **Money and date rules** - fee, minimum, close date, expiry and ledger balance in pence, in one place: the core algorithm.
-4. **Create a fund** - `/fund/new` creates the fund and slug and writes the "fund created" outbox email.
-5. **Public fund page** - total, goal bar, guest messages with hidden amounts respected, close date, share link, Contribute.
-6. **Guest checkout** - amount, message, show-amount, server-side fee, pending contribution, Stripe Checkout in test mode.
-7. **Payment webhook** - marks the contribution paid once, adds the credit entry, writes the guest receipt and "you've received a gift" to the outbox.
+2. **Database foundation** (done) - Neon Postgres + Drizzle with the five tables below.
+3. **Money and date rules** (done) - fee, minimum, close date, expiry and ledger balance in pence, in one place: the core algorithm.
+4. **Create a fund** (done) - `/fund/new` creates the fund and slug and writes the "fund created" outbox email.
+5. **Public fund page** (done) - total, goal bar, guest messages with hidden amounts respected, close date, share link, Contribute.
+6. **Guest checkout** (done) - amount, message, show-amount, server-side fee, pending contribution, Stripe Checkout in test mode.
+7. **Payment webhook** (done) - marks the contribution paid once, adds the credit entry, writes the guest receipt and "you've received a gift" to the outbox.
 8. **Mum page** - `/fund/<slug>/me`: balance, expiry, every message and amount, top-up history.
 9. **Mum top-ups** - same checkout and webhook path with `type = topup`, private to the mum.
 10. **Use my credit** - choose a service and amount (capped), creates a credit request and an outbox email to TPS.
@@ -149,6 +149,7 @@ Simple and clear enough to demo the flow, using the spec prototype's wording whe
 ## Deployment
 
 - Personal Vercel account, temporary. Build with the default Next.js build.
+- Env vars: `DATABASE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (see `.env.example`).
 - Neon Postgres database; Stripe test-mode keys; Stripe webhook endpoint pointed at the Vercel deployment. Locally, the Stripe CLI forwards webhooks.
 - Verify: `npm run verify` (typecheck, build), also run by GitHub Actions on pull requests.
 - Demo walkthrough: create a fund, two guest gifts (one amount hidden), open the mum page, top up £10, request credit for a treatment and a programme, record credit used, check the outbox and balances, then move the demo date past close and expiry.
@@ -156,7 +157,6 @@ Simple and clear enough to demo the flow, using the spec prototype's wording whe
 ## Open questions
 
 > - TODO: the service list and prices for "Use my credit" (placeholder list until supplied).
-> - TODO: env var names (database URL, Stripe secret key, webhook secret) are set when features 2 and 6 land.
 > - TODO: how the "pretend today is" date is stored and scoped (for example a cookie per browser) is decided in feature 12.
 > - Gap: the plan's treatment rule "shortfall paid by card" and the programme rule "comes off the next instalment" have no feature in the demo; the demo records credit used only.
 > - Gap: the spec's prototype is not in the repo, so screens cannot be checked against it.
