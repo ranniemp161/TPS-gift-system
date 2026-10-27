@@ -5,7 +5,7 @@
     "checkpointCommits": "disabled"
   },
   "git": {
-    "landing": "pull-request",
+    "landing": "local-merge",
     "featureBranchPrefix": "feature/",
     "fixBranchPrefix": "fix/",
     "rollbackBranchPrefix": "rollback/"
