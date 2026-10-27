@@ -9,7 +9,7 @@ Demo MVP
 - [x] 6. **Guest checkout** - `/fund/<slug>/give` and `/thanks`: amount (£10 min), message, show-amount choice, server-side fee, pending contribution, Stripe Checkout in test mode
 - [x] 7. **Payment webhook** - `checkout.session.completed` marks the contribution paid once, adds the credit entry, writes the receipt and "you've received a gift" to the outbox
 - [x] 8. **Mum page** - `/fund/<slug>/me`, no sign-in: balance, expiry, every message and amount, top-up history
-- [ ] 9. **Mum top-ups** - top-up with fee through the same checkout and webhook, private to the mum
+- [x] 9. **Mum top-ups** - top-up with fee through the same checkout and webhook, private to the mum
 - [ ] 10. **Use my credit** - pick a service; programmes ask how much to apply; capped at available credit; request to TPS in the outbox
 - [ ] 11. **Admin screen** - `/admin/funds`, no sign-in: funds, balances, close and expiry dates, contributions, open requests, record credit used
 - [ ] 12. **Demo outbox and clock** - outbox page for every email; "pretend today is" date driving closing and expiry
