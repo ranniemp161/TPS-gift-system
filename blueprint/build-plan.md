@@ -11,6 +11,6 @@ Demo MVP
 - [x] 8. **Mum page** - `/fund/<slug>/me`, no sign-in: balance, expiry, every message and amount, top-up history
 - [x] 9. **Mum top-ups** - top-up with fee through the same checkout and webhook, private to the mum
 - [x] 10. **Use my credit** - pick a service; programmes ask how much to apply; capped at available credit; request to TPS in the outbox
-- [ ] 11. **Admin screen** - `/admin/funds`, no sign-in: funds, balances, close and expiry dates, contributions, open requests, record credit used (refuse a debit above the current ledger balance; covers finding F-02 from feature 10)
+- [x] 11. **Admin screen** - `/admin/funds`, no sign-in: funds, balances, close and expiry dates, contributions, open requests, record credit used (refuse a debit above the current ledger balance; covers finding F-02 from feature 10)
 - [ ] 12. **Demo outbox and clock** - outbox page for every email; "pretend today is" date driving closing and expiry
 - [ ] 13. **Deploy to Vercel** - personal Vercel, Neon database, Stripe test keys and webhook endpoint, then run the demo walkthrough
