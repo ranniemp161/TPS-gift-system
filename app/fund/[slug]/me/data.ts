@@ -1,7 +1,16 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { contributions, creditLedger, funds } from "@/db/schema";
-import type { LedgerEntryItem } from "@/lib/fund-rules";
+import {
+  contributions,
+  creditLedger,
+  creditRequests,
+  funds,
+} from "@/db/schema";
+import {
+  creditBalancePence,
+  type LedgerEntryItem,
+  todayIsoDate,
+} from "@/lib/fund-rules";
 
 export type MumGift = {
   id: string;
@@ -18,15 +27,28 @@ export type MumTopup = {
   createdAt: Date;
 };
 
+export type MumCreditRequest = {
+  id: string;
+  service: string;
+  amountRequestedPence: number;
+  status: "new" | "done";
+  createdAt: Date;
+};
+
 export type MumFund = {
+  id: string;
   slug: string;
   mumFirstName: string;
+  mumEmail: string;
   closeDate: string;
   goalPence: number | null;
   note: string | null;
   ledger: LedgerEntryItem[];
   gifts: MumGift[];
   topups: MumTopup[];
+  creditRequests: MumCreditRequest[];
+  openRequestsPence: number;
+  availableCreditPence: number;
 };
 
 export async function getMumFund(slug: string): Promise<MumFund | null> {
@@ -41,6 +63,7 @@ export async function getMumFund(slug: string): Promise<MumFund | null> {
       id: funds.id,
       slug: funds.slug,
       mumFirstName: funds.mumFirstName,
+      mumEmail: funds.mumEmail,
       closeDate: funds.closeDate,
       goalPence: funds.goalPence,
       note: funds.note,
@@ -53,7 +76,7 @@ export async function getMumFund(slug: string): Promise<MumFund | null> {
     return null;
   }
 
-  const [ledger, contributionRows] = await Promise.all([
+  const [ledger, contributionRows, creditRequestRows] = await Promise.all([
     db
       .select({
         entry: creditLedger.entry,
@@ -79,7 +102,27 @@ export async function getMumFund(slug: string): Promise<MumFund | null> {
         ),
       )
       .orderBy(desc(contributions.createdAt)),
+    db
+      .select({
+        id: creditRequests.id,
+        service: creditRequests.service,
+        amountRequestedPence: creditRequests.amountRequestedPence,
+        status: creditRequests.status,
+        createdAt: creditRequests.createdAt,
+      })
+      .from(creditRequests)
+      .where(eq(creditRequests.fundId, fundRow.id))
+      .orderBy(desc(creditRequests.createdAt)),
   ]);
+
+  const openRequestsPence = creditRequestRows
+    .filter((row) => row.status === "new")
+    .reduce((sum, row) => sum + row.amountRequestedPence, 0);
+  const balancePence = creditBalancePence(
+    ledger,
+    fundRow.closeDate,
+    todayIsoDate(),
+  );
 
   const gifts: MumGift[] = [];
   const topups: MumTopup[] = [];
@@ -104,13 +147,18 @@ export async function getMumFund(slug: string): Promise<MumFund | null> {
   }
 
   return {
+    id: fundRow.id,
     slug: fundRow.slug,
     mumFirstName: fundRow.mumFirstName,
+    mumEmail: fundRow.mumEmail,
     closeDate: fundRow.closeDate,
     goalPence: fundRow.goalPence,
     note: fundRow.note,
     ledger,
     gifts,
     topups,
+    creditRequests: creditRequestRows,
+    openRequestsPence,
+    availableCreditPence: Math.max(0, balancePence - openRequestsPence),
   };
 }
