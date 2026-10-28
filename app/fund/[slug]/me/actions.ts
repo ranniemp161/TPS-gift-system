@@ -1,8 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
+import { ledgerBalanceSql, lockFund, openRequestsSql } from "@/db/credit";
 import { creditRequests, funds, outbox } from "@/db/schema";
 import { startContributionCheckout } from "@/lib/checkout";
 import { currentIsoDate } from "@/lib/demo-clock";
@@ -273,18 +274,34 @@ export async function requestCredit(
 
   try {
     const db = getDb();
-    await db.batch([
-      db.insert(creditRequests).values({
-        fundId: fund.id,
-        service: service.name,
-        amountRequestedPence: amountPence,
-      }),
-      db.insert(outbox).values({
-        to: TPS_TEAM_EMAIL,
-        subject: `Credit request: ${fund.mumFirstName} - ${service.name}`,
-        body: emailBody,
-      }),
+    // Written only while the amount still fits the balance minus requests that
+    // are still open. The fund lock makes concurrent requests run one at a time,
+    // and the request and its email are written from the same row.
+    const fits = sql`select 1 where ${amountPence}::integer <= ${ledgerBalanceSql(fund.id)} - ${openRequestsSql(fund.id)}`;
+    const [, written] = await db.batch([
+      lockFund(fund.id),
+      db.execute(sql`
+        with source as (${fits}),
+        request as (
+          insert into ${creditRequests} (fund_id, service, amount_requested_pence)
+          select ${fund.id}::uuid, ${service.name}::text, ${amountPence}::integer
+          from source
+          returning id
+        )
+        insert into ${outbox} ("to", subject, body)
+        select ${TPS_TEAM_EMAIL}::text, ${`Credit request: ${fund.mumFirstName} - ${service.name}`}::text, ${emailBody}::text
+        from request
+        returning id`),
     ]);
+
+    if (written.rows.length === 0) {
+      const message =
+        "This is more than your available credit. Refresh to see the latest balance.";
+      if (service.kind === "programme") {
+        return { status: "invalid", errors: { amount: message }, values };
+      }
+      return { status: "error", message, values };
+    }
   } catch (error) {
     console.error("Failed to save credit request:", error);
     return {

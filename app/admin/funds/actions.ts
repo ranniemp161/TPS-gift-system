@@ -3,6 +3,7 @@
 import { and, eq, type SQL, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
+import { ledgerBalanceSql, lockFund } from "@/db/credit";
 import { creditLedger, creditRequests, funds, outbox } from "@/db/schema";
 import { currentIsoDate } from "@/lib/demo-clock";
 import {
@@ -84,22 +85,6 @@ async function loadFund(fundId: string): Promise<FundForDebit | null> {
     .where(eq(funds.id, fundId))
     .limit(1);
   return fund ?? null;
-}
-
-// Derived from the ledger inside the write statement, so it reflects every
-// debit committed before this transaction took the fund lock.
-function ledgerBalanceSql(fundId: string) {
-  return sql`(select coalesce(sum(case when ${creditLedger.entry} = 'credit' then ${creditLedger.amountPence} else -${creditLedger.amountPence} end), 0) from ${creditLedger} where ${creditLedger.fundId} = ${fundId}::uuid)`;
-}
-
-// Locks the fund row first, so competing debits for one fund run one at a
-// time and each re-derives the balance after the previous one commits.
-function lockFund(fundId: string) {
-  return getDb()
-    .select({ id: funds.id })
-    .from(funds)
-    .where(eq(funds.id, fundId))
-    .for("update");
 }
 
 function creditUsedEmail(
