@@ -30,28 +30,68 @@ export function DemoBarLinks({ slug }: { slug?: string }) {
   );
 }
 
-function pageRoleLabel(pathname: string): string | null {
-  if (pathname === "/") return "Home";
-  if (pathname === "/fund/new") return "Create a fund";
-  if (/^\/fund\/[^/]+\/me$/.test(pathname)) return "Mum page (private)";
-  if (/^\/fund\/[^/]+(\/give|\/thanks)?$/.test(pathname)) return "Public page";
-  if (pathname === "/admin/login") return "Admin sign-in";
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    return "Admin (TPS team)";
+type PageRole = { label: string; audience: string };
+
+function pageRole(pathname: string): PageRole | null {
+  if (pathname === "/") {
+    return { label: "Home", audience: "For anyone trying the demo" };
   }
-  if (pathname === "/outbox") return "Outbox (demo emails)";
+  if (pathname === "/fund/new") {
+    return {
+      label: "Create a fund",
+      audience:
+        "For the organiser (a friend or family member) or the mum herself",
+    };
+  }
+  if (/^\/fund\/[^/]+\/me$/.test(pathname)) {
+    return {
+      label: "Mum page (private)",
+      audience:
+        "For the mum only: her balance, top-ups and credit requests",
+    };
+  }
+  if (/^\/fund\/[^/]+$/.test(pathname)) {
+    return {
+      label: "Public page",
+      audience: "For guests: family and friends who want to give",
+    };
+  }
+  if (/^\/fund\/[^/]+\/give$/.test(pathname)) {
+    return { label: "Public page", audience: "For guests: giving to the fund" };
+  }
+  if (/^\/fund\/[^/]+\/thanks$/.test(pathname)) {
+    return { label: "Public page", audience: "For guests, after paying" };
+  }
+  if (pathname === "/admin/login") {
+    return { label: "Admin sign-in", audience: "For the TPS team" };
+  }
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return {
+      label: "Admin (TPS team)",
+      audience: "For the TPS team: all funds and credit used",
+    };
+  }
+  if (pathname === "/outbox") {
+    return {
+      label: "Outbox (demo emails)",
+      audience: "Demo only: every email the system would send",
+    };
+  }
   return null;
 }
 
 export function DemoBarLinksForRoute() {
   const { slug } = useParams<{ slug?: string }>();
-  const label = pageRoleLabel(usePathname());
+  const role = pageRole(usePathname());
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-      {label ? (
-        <span className="rounded-full bg-zinc-900 px-2 py-0.5 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">
-          {label}
-        </span>
+      {role ? (
+        <>
+          <span className="rounded-full bg-zinc-900 px-2 py-0.5 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">
+            {role.label}
+          </span>
+          <span>{role.audience}</span>
+        </>
       ) : null}
       <DemoBarLinks slug={slug} />
     </div>
