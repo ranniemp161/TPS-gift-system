@@ -8,6 +8,7 @@ import {
   expiryDateFor,
   formatPence,
   fundStatus,
+  isGoalFull,
 } from "@/lib/fund-rules";
 import { FundTimeline } from "@/app/fund-timeline";
 import { requestOrigin } from "@/lib/request-origin";
@@ -42,6 +43,7 @@ async function FundContent({
   const headerList = await headers();
   const shareUrl = `${requestOrigin(headerList)}/fund/${fund.slug}`;
   const status = fundStatus(fund.closeDate, today);
+  const isFull = isGoalFull(fund.goalPence, fund.totalPence);
   const expiryDate = expiryDateFor(fund.closeDate);
 
   return (
@@ -96,7 +98,13 @@ async function FundContent({
           status={status}
         />
 
-        {status === "open" ? (
+        {status === "open" && isFull ? (
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            Goal reached. This fund is full and no longer accepts gifts.
+          </p>
+        ) : null}
+
+        {status === "open" && !isFull ? (
           <div>
             <Link
               href={`/fund/${fund.slug}/give`}
