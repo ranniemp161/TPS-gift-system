@@ -39,6 +39,7 @@ export type MumFund = {
   slug: string;
   mumFirstName: string;
   mumEmail: string;
+  dueDate: string;
   closeDate: string;
   goalPence: number | null;
   note: string | null;
@@ -66,6 +67,7 @@ export async function getMumFund(
       slug: funds.slug,
       mumFirstName: funds.mumFirstName,
       mumEmail: funds.mumEmail,
+      dueDate: funds.dueDate,
       closeDate: funds.closeDate,
       goalPence: funds.goalPence,
       note: funds.note,
@@ -153,6 +155,7 @@ export async function getMumFund(
     slug: fundRow.slug,
     mumFirstName: fundRow.mumFirstName,
     mumEmail: fundRow.mumEmail,
+    dueDate: fundRow.dueDate,
     closeDate: fundRow.closeDate,
     goalPence: fundRow.goalPence,
     note: fundRow.note,

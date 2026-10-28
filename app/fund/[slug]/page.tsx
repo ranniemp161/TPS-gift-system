@@ -9,6 +9,7 @@ import {
   formatPence,
   fundStatus,
 } from "@/lib/fund-rules";
+import { FundTimeline } from "@/app/fund-timeline";
 import { requestOrigin } from "@/lib/request-origin";
 import { getPublicFund } from "./data";
 import { ShareLink } from "./share-link";
@@ -16,15 +17,6 @@ import { ShareLink } from "./share-link";
 export const metadata = {
   title: "Gift fund",
 };
-
-function formatIsoDateEnGb(isoDate: string): string {
-  const [y, m, d] = isoDate.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "long",
-    timeZone: "UTC",
-  }).format(date);
-}
 
 function formatDateEnGb(date: Date): string {
   return new Intl.DateTimeFormat("en-GB", {
@@ -97,20 +89,12 @@ async function FundContent({
       </section>
 
       <section className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="space-y-1 text-sm">
-          {status === "open" ? (
-            <p className="font-medium text-zinc-900 dark:text-zinc-100">
-              Open for gifts until {formatIsoDateEnGb(fund.closeDate)}
-            </p>
-          ) : (
-            <p className="font-medium text-zinc-900 dark:text-zinc-100">
-              This fund closed on {formatIsoDateEnGb(fund.closeDate)}
-            </p>
-          )}
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Gift credit can be used until {formatIsoDateEnGb(expiryDate)}
-          </p>
-        </div>
+        <FundTimeline
+          dueDate={fund.dueDate}
+          closeDate={fund.closeDate}
+          expiryDate={expiryDate}
+          status={status}
+        />
 
         {status === "open" ? (
           <div>

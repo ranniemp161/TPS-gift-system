@@ -13,6 +13,7 @@ export type PublicGift = {
 export type PublicFund = {
   slug: string;
   mumFirstName: string;
+  dueDate: string; // YYYY-MM-DD
   closeDate: string; // YYYY-MM-DD
   goalPence: number | null;
   note: string | null;
@@ -32,6 +33,7 @@ export async function getPublicFund(slug: string): Promise<PublicFund | null> {
       id: funds.id,
       slug: funds.slug,
       mumFirstName: funds.mumFirstName,
+      dueDate: funds.dueDate,
       closeDate: funds.closeDate,
       goalPence: funds.goalPence,
       note: funds.note,
@@ -79,6 +81,7 @@ export async function getPublicFund(slug: string): Promise<PublicFund | null> {
   return {
     slug: fundRow.slug,
     mumFirstName: fundRow.mumFirstName,
+    dueDate: fundRow.dueDate,
     closeDate: fundRow.closeDate,
     goalPence: fundRow.goalPence,
     note: fundRow.note,

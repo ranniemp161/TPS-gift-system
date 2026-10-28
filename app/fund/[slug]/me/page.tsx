@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { FundTimeline } from "@/app/fund-timeline";
 import { currentIsoDate } from "@/lib/demo-clock";
 import {
   creditBalancePence,
@@ -117,13 +118,12 @@ async function MumFundContent({
               : `Expires on ${formatIsoDateEnGb(expiryDate)}`}
           </span>
         </div>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          {status === "open"
-            ? `Open for gifts until ${formatIsoDateEnGb(fund.closeDate)}.`
-            : status === "closed"
-              ? `Closed on ${formatIsoDateEnGb(fund.closeDate)}, credit can still be used until ${formatIsoDateEnGb(expiryDate)}.`
-              : `Credit expired on ${formatIsoDateEnGb(expiryDate)}.`}
-        </p>
+        <FundTimeline
+          dueDate={fund.dueDate}
+          closeDate={fund.closeDate}
+          expiryDate={expiryDate}
+          status={status}
+        />
       </section>
 
       <section aria-labelledby="public-page-heading" className="space-y-2">

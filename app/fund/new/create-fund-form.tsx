@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { FundTimeline } from "@/app/fund-timeline";
+import {
+  closeDateFor,
+  expiryDateFor,
+  isIsoDate,
+} from "@/lib/fund-rules";
 import { createFund, type CreateFundState } from "./actions";
 
 const initialState: CreateFundState = { status: "idle" };
@@ -18,6 +24,7 @@ function formatDateEnGb(isoDate: string): string {
 export function CreateFundForm() {
   const [state, formAction, pending] = useActionState(createFund, initialState);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [pickedDueDate, setPickedDueDate] = useState<string | null>(null);
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const confirmationHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -113,6 +120,11 @@ export function CreateFundForm() {
         };
 
   const errors = state.status === "invalid" ? state.errors : {};
+
+  const previewDueDate = pickedDueDate ?? values.dueDate;
+  const previewCloseDate = isIsoDate(previewDueDate)
+    ? closeDateFor(previewDueDate)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -266,6 +278,7 @@ export function CreateFundForm() {
             type="date"
             required
             defaultValue={values.dueDate}
+            onChange={(event) => setPickedDueDate(event.target.value)}
             aria-invalid={errors.dueDate ? "true" : undefined}
             aria-describedby={
               errors.dueDate ? "dueDate-hint dueDate-error" : "dueDate-hint"
@@ -279,6 +292,18 @@ export function CreateFundForm() {
             Guests can give until 28 days after the baby&apos;s due date. The
             gift credit then lasts 12 months from that day.
           </p>
+          {previewCloseDate ? (
+            <div
+              aria-live="polite"
+              className="mt-3 rounded-md border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            >
+              <FundTimeline
+                dueDate={previewDueDate}
+                closeDate={previewCloseDate}
+                expiryDate={expiryDateFor(previewCloseDate)}
+              />
+            </div>
+          ) : null}
           {errors.dueDate && (
             <p
               id="dueDate-error"
