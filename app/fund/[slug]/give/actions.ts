@@ -8,12 +8,16 @@ import { startContributionCheckout } from "@/lib/checkout";
 import { currentIsoDate } from "@/lib/demo-clock";
 import {
   cardFeePence,
+  formatPence,
   fundStatus,
+  goalRemainingPence,
+  isGoalFull,
   MAX_CHARGE_PENCE,
   meetsMinimum,
   parsePoundsToPence,
 } from "@/lib/fund-rules";
 import { isValidEmail } from "@/lib/validation";
+import { getPublicFund } from "../data";
 
 export type GiveFieldName = "amount" | "name" | "email" | "message";
 
@@ -126,6 +130,27 @@ export async function giveToFund(
       return {
         status: "error",
         message: "This fund is closed and no longer accepts gifts.",
+        values,
+      };
+    }
+
+    const publicFund = await getPublicFund(slug);
+    if (publicFund && isGoalFull(publicFund.goalPence, publicFund.totalPence)) {
+      return {
+        status: "error",
+        message: "This fund has reached its goal and no longer accepts gifts.",
+        values,
+      };
+    }
+    const remainingPence = publicFund
+      ? goalRemainingPence(publicFund.goalPence, publicFund.totalPence)
+      : null;
+    if (remainingPence !== null && amountPence > remainingPence) {
+      return {
+        status: "invalid",
+        errors: {
+          amount: `This fund only needs ${formatPence(remainingPence)} more to reach its goal. Please give ${formatPence(remainingPence)} or less.`,
+        },
         values,
       };
     }

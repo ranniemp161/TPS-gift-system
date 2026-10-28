@@ -159,3 +159,23 @@ export function creditBalancePence(
   }
   return ledgerBalancePence(entries);
 }
+
+/** Pence still needed to reach the goal, or null when the fund has no goal. */
+export function goalRemainingPence(
+  goalPence: number | null,
+  totalPence: number
+): number | null {
+  if (goalPence === null) {
+    return null;
+  }
+  return Math.max(0, goalPence - totalPence);
+}
+
+/** A fund with a goal is full once less than the minimum gift is left to reach it. */
+export function isGoalFull(
+  goalPence: number | null,
+  totalPence: number
+): boolean {
+  const remaining = goalRemainingPence(goalPence, totalPence);
+  return remaining !== null && remaining < MIN_AMOUNT_PENCE;
+}

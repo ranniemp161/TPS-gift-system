@@ -5,6 +5,7 @@ import { currentIsoDate } from "@/lib/demo-clock";
 import {
   formatPence,
   fundStatus,
+  isGoalFull,
   MIN_AMOUNT_PENCE,
 } from "@/lib/fund-rules";
 import { getPublicFund } from "../data";
@@ -36,18 +37,20 @@ export default async function GivePage({ params }: PageProps<"/fund/[slug]/give"
   }
 
   const isClosed = fundStatus(fund.closeDate, await currentIsoDate()) !== "open";
+  const isFull = isGoalFull(fund.goalPence, fund.totalPence);
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-16 dark:bg-black sm:px-6">
       <main className="w-full max-w-xl rounded-xl border border-zinc-200 bg-white p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-950 sm:p-10">
-        {isClosed ? (
+        {isClosed || isFull ? (
           <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               {fund.mumFirstName}&apos;s gift fund
             </h1>
             <p className="text-base text-zinc-600 dark:text-zinc-400">
-              This fund closed on {formatIsoDateEnGb(fund.closeDate)} and no longer
-              accepts gifts.
+              {isClosed
+                ? `This fund closed on ${formatIsoDateEnGb(fund.closeDate)} and no longer accepts gifts.`
+                : "This fund has reached its goal and no longer accepts gifts."}
             </p>
             <Link
               href={`/fund/${fund.slug}`}
