@@ -13,4 +13,5 @@ Demo MVP
 - [x] 10. **Use my credit** - pick a service; programmes ask how much to apply; capped at available credit; request to TPS in the outbox
 - [x] 11. **Admin screen** - `/admin/funds`, no sign-in: funds, balances, close and expiry dates, contributions, open requests, record credit used (refuse a debit above the current ledger balance; covers finding F-02 from feature 10)
 - [x] 12. **Demo outbox and clock** - outbox page for every email; "pretend today is" date driving closing and expiry
-- [ ] 13. **Deploy to Vercel** - personal Vercel, Neon database, Stripe test keys and webhook endpoint, then run the demo walkthrough
+- [ ] 13. **Role guidance** - each page says who it is for (organiser, mum, guest, TPS admin), and the create-fund page explains who usually sets up a fund and that anyone with the link can do it in this demo
+- [x] 14. **Deploy to Vercel** - personal Vercel, Neon database, Stripe test keys and webhook endpoint, then run the demo walkthrough
