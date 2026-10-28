@@ -16,6 +16,12 @@ export default function CreateFundPage() {
             Every contribution becomes prepaid TPS gift credit for postpartum
             support services.
           </p>
+          <p className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
+            Usually set up by a friend or family member (the organiser) on the
+            mum&apos;s behalf, using her email. The mum can also set up her own
+            fund. This demo has no sign-in, so anyone with the link can create
+            a fund.
+          </p>
         </header>
 
         <CreateFundForm />
