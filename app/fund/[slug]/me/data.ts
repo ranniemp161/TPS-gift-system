@@ -9,7 +9,6 @@ import {
 import {
   creditBalancePence,
   type LedgerEntryItem,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 
 export type MumGift = {
@@ -51,7 +50,10 @@ export type MumFund = {
   availableCreditPence: number;
 };
 
-export async function getMumFund(slug: string): Promise<MumFund | null> {
+export async function getMumFund(
+  slug: string,
+  today: string,
+): Promise<MumFund | null> {
   if (typeof slug !== "string" || slug.length === 0 || slug.length > 100) {
     return null;
   }
@@ -121,7 +123,7 @@ export async function getMumFund(slug: string): Promise<MumFund | null> {
   const balancePence = creditBalancePence(
     ledger,
     fundRow.closeDate,
-    todayIsoDate(),
+    today,
   );
 
   const gifts: MumGift[] = [];

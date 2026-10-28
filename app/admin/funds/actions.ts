@@ -4,11 +4,11 @@ import { and, eq, type SQL, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { creditLedger, creditRequests, funds, outbox } from "@/db/schema";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   formatPence,
   fundStatus,
   parsePoundsToPence,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 
 const CREDIT_USED_REASON = "Credit used";
@@ -193,7 +193,7 @@ export async function recordCreditUsed(
         values,
       };
     }
-    if (fundStatus(fund.closeDate, todayIsoDate()) === "expired") {
+    if (fundStatus(fund.closeDate, await currentIsoDate()) === "expired") {
       return {
         status: "error",
         message: "This credit has expired and can no longer be used.",
@@ -290,7 +290,7 @@ export async function applyCreditRequest(
         values,
       };
     }
-    if (fundStatus(fund.closeDate, todayIsoDate()) === "expired") {
+    if (fundStatus(fund.closeDate, await currentIsoDate()) === "expired") {
       return {
         status: "error",
         message: "This credit has expired and can no longer be used.",

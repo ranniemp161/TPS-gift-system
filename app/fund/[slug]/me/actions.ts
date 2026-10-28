@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { creditRequests, funds, outbox } from "@/db/schema";
 import { startContributionCheckout } from "@/lib/checkout";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   cardFeePence,
   expiryDateFor,
@@ -13,7 +14,6 @@ import {
   MAX_CHARGE_PENCE,
   meetsMinimum,
   parsePoundsToPence,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 import { calculateCreditRequest, getServiceById } from "@/lib/services";
 import { getMumFund } from "./data";
@@ -98,7 +98,7 @@ export async function topUpFund(
         values,
       };
     }
-    if (fundStatus(fund.closeDate, todayIsoDate()) !== "open") {
+    if (fundStatus(fund.closeDate, await currentIsoDate()) !== "open") {
       return {
         status: "error",
         message: "This fund is closed and no longer accepts top-ups.",
@@ -169,8 +169,10 @@ export async function requestCredit(
   const values = readCreditRequestValues(formData);
 
   let fund: Awaited<ReturnType<typeof getMumFund>>;
+  let today: string;
   try {
-    fund = await getMumFund(slug);
+    today = await currentIsoDate();
+    fund = await getMumFund(slug, today);
   } catch (error) {
     console.error("Failed to load fund for credit request:", error);
     return {
@@ -187,7 +189,6 @@ export async function requestCredit(
       values,
     };
   }
-  const today = todayIsoDate();
   if (fundStatus(fund.closeDate, today) === "expired") {
     return {
       status: "error",

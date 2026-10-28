@@ -72,6 +72,15 @@ function parseIsoDate(dateStr: string): { year: number; month: number; day: numb
   return { year, month, day };
 }
 
+export function isIsoDate(value: string): boolean {
+  try {
+    parseIsoDate(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function formatIsoDate(year: number, month: number, day: number): string {
   const y = String(year).padStart(4, "0");
   const m = String(month).padStart(2, "0");
