@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { funds } from "@/db/schema";
 import { startContributionCheckout } from "@/lib/checkout";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   cardFeePence,
   fundStatus,
   MAX_CHARGE_PENCE,
   meetsMinimum,
   parsePoundsToPence,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 import { isValidEmail } from "@/lib/validation";
 
@@ -122,7 +122,7 @@ export async function giveToFund(
         values,
       };
     }
-    if (fundStatus(fund.closeDate, todayIsoDate()) !== "open") {
+    if (fundStatus(fund.closeDate, await currentIsoDate()) !== "open") {
       return {
         status: "error",
         message: "This fund is closed and no longer accepts gifts.",

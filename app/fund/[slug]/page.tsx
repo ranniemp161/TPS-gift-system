@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   expiryDateFor,
   formatPence,
   fundStatus,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 import { requestOrigin } from "@/lib/request-origin";
 import { getPublicFund } from "./data";
@@ -40,7 +40,7 @@ async function FundContent({
 }) {
   const { slug } = await params;
   await connection();
-  const today = todayIsoDate();
+  const today = await currentIsoDate();
   const fund = await getPublicFund(slug);
 
   if (!fund) {

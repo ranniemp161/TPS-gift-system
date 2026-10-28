@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { formatPence, todayIsoDate } from "@/lib/fund-rules";
+import { currentIsoDate } from "@/lib/demo-clock";
+import { formatPence } from "@/lib/fund-rules";
 import { applyCreditRequest, recordCreditUsed } from "./actions";
 import { CreditUsedForm } from "./credit-used-form";
 import { type AdminFund, getAdminFunds } from "./data";
@@ -221,7 +222,7 @@ function FundCard({ fund }: { fund: AdminFund }) {
 
 async function AdminFundsContent() {
   await connection();
-  const funds = await getAdminFunds(todayIsoDate());
+  const funds = await getAdminFunds(await currentIsoDate());
 
   if (funds.length === 0) {
     return (

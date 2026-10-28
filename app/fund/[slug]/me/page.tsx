@@ -3,12 +3,12 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   creditBalancePence,
   expiryDateFor,
   formatPence,
   fundStatus,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 import { requestOrigin } from "@/lib/request-origin";
 import { requestCredit, topUpFund } from "./actions";
@@ -45,8 +45,8 @@ async function MumFundContent({
 }) {
   const [{ slug }, query] = await Promise.all([params, searchParams]);
   await connection();
-  const today = todayIsoDate();
-  const fund = await getMumFund(slug);
+  const today = await currentIsoDate();
+  const fund = await getMumFund(slug, today);
 
   if (!fund) {
     notFound();

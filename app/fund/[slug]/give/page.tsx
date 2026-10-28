@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { currentIsoDate } from "@/lib/demo-clock";
 import {
   formatPence,
   fundStatus,
   MIN_AMOUNT_PENCE,
-  todayIsoDate,
 } from "@/lib/fund-rules";
 import { getPublicFund } from "../data";
 import { giveToFund } from "./actions";
@@ -35,7 +35,7 @@ export default async function GivePage({ params }: PageProps<"/fund/[slug]/give"
     notFound();
   }
 
-  const isClosed = fundStatus(fund.closeDate, todayIsoDate()) !== "open";
+  const isClosed = fundStatus(fund.closeDate, await currentIsoDate()) !== "open";
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-16 dark:bg-black sm:px-6">
