@@ -71,7 +71,7 @@ export function CreateFundForm() {
             </div>
             <div>
               <dt className="font-medium text-zinc-600 dark:text-zinc-400">
-                Close date
+                Fund closes (28 days after the due date)
               </dt>
               <dd className="mt-1 text-zinc-900 dark:text-zinc-100">
                 {formatDateEnGb(state.closeDate)}
@@ -79,7 +79,7 @@ export function CreateFundForm() {
             </div>
             <div>
               <dt className="font-medium text-zinc-600 dark:text-zinc-400">
-                Credit expiry
+                Credit expires (12 months after the fund closes)
               </dt>
               <dd className="mt-1 text-zinc-900 dark:text-zinc-100">
                 {formatDateEnGb(state.expiryDate)}
@@ -258,7 +258,7 @@ export function CreateFundForm() {
             htmlFor="dueDate"
             className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
           >
-            Due date
+            Baby&apos;s due date
           </label>
           <input
             id="dueDate"
@@ -267,9 +267,18 @@ export function CreateFundForm() {
             required
             defaultValue={values.dueDate}
             aria-invalid={errors.dueDate ? "true" : undefined}
-            aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
+            aria-describedby={
+              errors.dueDate ? "dueDate-hint dueDate-error" : "dueDate-hint"
+            }
             className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-xs focus:border-zinc-500 focus:outline-hidden focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
           />
+          <p
+            id="dueDate-hint"
+            className="mt-1 text-sm text-zinc-600 dark:text-zinc-400"
+          >
+            Guests can give until 28 days after the baby&apos;s due date. The
+            gift credit then lasts 12 months from that day.
+          </p>
           {errors.dueDate && (
             <p
               id="dueDate-error"
