@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useActionState } from "react";
 import { clearDemoDate, type DemoDateState, setDemoDate } from "./demo-actions";
 
@@ -30,9 +30,32 @@ export function DemoBarLinks({ slug }: { slug?: string }) {
   );
 }
 
+function pageRoleLabel(pathname: string): string | null {
+  if (pathname === "/") return "Home";
+  if (pathname === "/fund/new") return "Create a fund";
+  if (/^\/fund\/[^/]+\/me$/.test(pathname)) return "Mum page (private)";
+  if (/^\/fund\/[^/]+(\/give|\/thanks)?$/.test(pathname)) return "Public page";
+  if (pathname === "/admin/login") return "Admin sign-in";
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return "Admin (TPS team)";
+  }
+  if (pathname === "/outbox") return "Outbox (demo emails)";
+  return null;
+}
+
 export function DemoBarLinksForRoute() {
   const { slug } = useParams<{ slug?: string }>();
-  return <DemoBarLinks slug={slug} />;
+  const label = pageRoleLabel(usePathname());
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      {label ? (
+        <span className="rounded-full bg-zinc-900 px-2 py-0.5 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">
+          {label}
+        </span>
+      ) : null}
+      <DemoBarLinks slug={slug} />
+    </div>
+  );
 }
 
 export function DemoDateControls({

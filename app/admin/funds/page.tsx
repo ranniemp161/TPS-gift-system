@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { currentIsoDate } from "@/lib/demo-clock";
 import { formatPence } from "@/lib/fund-rules";
+import { signOutAdmin } from "../login/actions";
 import { applyCreditRequest, recordCreditUsed } from "./actions";
 import { CreditUsedForm } from "./credit-used-form";
 import { type AdminFund, getAdminFunds } from "./data";
@@ -245,14 +246,23 @@ export default function AdminFundsPage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 px-4 py-16 dark:bg-black sm:px-6">
       <main className="w-full max-w-3xl space-y-8">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Funds admin
-          </h1>
-          <p className={mutedClass}>
-            Demo TPS team view. There is no sign-in in this demo, so use test
-            data only.
-          </p>
+        <header className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Funds admin
+            </h1>
+            <p className={mutedClass}>
+              Demo TPS team view. Use test data only.
+            </p>
+          </div>
+          <form action={signOutAdmin}>
+            <button
+              type="submit"
+              className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-900"
+            >
+              Sign out
+            </button>
+          </form>
         </header>
         <Suspense fallback={<p className={mutedClass}>Loading funds...</p>}>
           <AdminFundsContent />
